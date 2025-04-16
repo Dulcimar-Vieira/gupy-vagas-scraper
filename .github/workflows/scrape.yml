@@ -31,7 +31,7 @@ jobs:
           sudo chmod +x /usr/bin/chromedriver
 
       - name: Executar o scraper
-        run: scraper.py
+        run: python scraper.py
 
       - name: Commit e Push do JSON
         run: |
