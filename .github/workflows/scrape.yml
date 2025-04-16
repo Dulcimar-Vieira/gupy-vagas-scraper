@@ -22,18 +22,16 @@ jobs:
       - name: Instalar dependências do sistema
         run: |
           sudo apt update
-          sudo apt install -y unzip curl
+          sudo apt install -y unzip curl wget
 
-      - name: Instalar ChromeDriver compatível
+      - name: Instalar ChromeDriver 135 (compatível com Chrome 135)
         run: |
-          # Baixar versão compatível com Chrome 135
-          curl -O https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/linux64/chromedriver-linux64.zip
+          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/135.0.7049.114/linux64/chromedriver-linux64.zip
           unzip chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
           sudo chmod +x /usr/bin/chromedriver
 
-          # Verificar versões instaladas
-          google-chrome --version || true
+          # Verificações
           chromedriver --version || true
 
       - name: Instalar dependências Python
