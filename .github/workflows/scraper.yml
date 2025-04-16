@@ -1,16 +1,17 @@
-name: Executar Scraper do Gupy
+name: Scraper Gupy Jovem Aprendiz
 
 on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 8,20 * * *'  # Executa diariamente às 08:00 e 20:00 UTC
-  workflow_dispatch:  # Permite execução manual
+    - cron: '0 */6 * * *'  # A cada 6 horas
 
 jobs:
-  run-scraper:
+  scrape:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Clonar o repositório
-        uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v3
 
       - name: Configurar Python
         uses: actions/setup-python@v4
@@ -18,9 +19,24 @@ jobs:
           python-version: '3.11'
 
       - name: Instalar dependências
+        run: pip install -r requirements.txt
+
+      - name: Instalar Chrome e ChromeDriver
         run: |
-          pip install -r requirements.txt
+          sudo apt update
+          sudo apt install -y google-chrome-stable
+          wget https://storage.googleapis.com/chrome-for-testing-public/122.0.6261.69/linux64/chromedriver-linux64.zip
+          unzip chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
+          sudo chmod +x /usr/bin/chromedriver
 
       - name: Executar o scraper
+        run: python nome_do_arquivo.py
+
+      - name: Commit e Push do JSON
         run: |
-          python scraper.py
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add vagas_gupy.json
+          git commit -m "update vagas json" || echo "Sem mudanças"
+          git push
