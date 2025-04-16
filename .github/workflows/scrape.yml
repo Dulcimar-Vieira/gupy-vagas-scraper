@@ -1,41 +1,46 @@
-name: Scraper Automático
+name: Scrape Gupy Jobs
 
 on:
-  push:
-    branches: [ main ]
   schedule:
-    - cron: '0 */6 * * *'  # Executa a cada 6 horas
+    - cron: '0 */12 * * *' # A cada 12 horas
+  workflow_dispatch:
 
 jobs:
-  run-scraper:
+  scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar o repositório
+      - name: Checkout do repositório
         uses: actions/checkout@v3
-
-      - name: Instalar Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
 
       - name: Instalar dependências do sistema
         run: |
-          sudo apt update
-          sudo apt install -y unzip curl wget
+          sudo apt-get update
+          sudo apt-get install -y wget unzip curl xvfb libxi6 libgconf-2-4 libnss3-dev libxss1 libappindicator1 libindicator7 fonts-liberation libasound2 libatk-bridge2.0-0 libgtk-3-0
+
+      - name: Configurar ambiente virtual
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Instalar Google Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
       - name: Instalar ChromeDriver 135 (compatível com Chrome 135)
         run: |
-          wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/135.0.7049.114/linux64/chromedriver-linux64.zip
-          unzip chromedriver-linux64.zip
-          sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
+          curl -Lo chromedriver https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/linux64/chromedriver-linux64/chromedriver
+          chmod +x chromedriver
+          sudo mv chromedriver /usr/bin/chromedriver
 
           # Verificações
+          google-chrome --version || true
           chromedriver --version || true
 
-      - name: Instalar dependências Python
-        run: pip install -r requirements.txt
-
       - name: Executar o scraper
-        run: python scraper.py
+        run: |
+          source venv/bin/activate
+          python scraper.py
