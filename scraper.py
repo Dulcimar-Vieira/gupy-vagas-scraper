@@ -63,3 +63,7 @@ for link in vagas[:5]:  # limitar para testes
     dados = get_dados_vaga(link)
     print(dados)
     time.sleep(1.5)  # evitar sobrecarregar o site
+    vagas = get_links_de_vagas()
+print(f"[DEBUG] Total de links capturados: {len(vagas)}")
+print(vagas)
+
